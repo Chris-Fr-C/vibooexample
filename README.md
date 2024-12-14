@@ -28,6 +28,14 @@ docker-compose up
 ```
 You can then open your browser at : [http://localhost:8080/docs](http://localhost:8080/docs)
 
+If we want to deploy it on kubernetes, we have several methods to do it.
+We could be using helm + argo cd etc...
+
+If we are using plain Kubernetes, we can just create a manifest that would contain:
+- a deployment
+- a service with the image we built, the port etc...
+- an ingress (through nginx or aws alb for instance) for the two endpoints we created.
+
 
 ### Running the tests
 If you are using vscode, just launch it with devcontainers.
@@ -118,3 +126,5 @@ We would then be running it on our github pipeline through the github actions on
 In production instead of just copying the data into the docker image, we would be using proper packaging (through pantsbuild, or setup build for instance).
 
 We could also add a layer of abstraction to the data fetching to separate concerns..
+
+Finally we should connect our service to [prometheus](https://github.com/prometheus/prometheus) to have real time metrics.

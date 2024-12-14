@@ -39,6 +39,11 @@ If you are using vscode, just launch it with devcontainers.
 
 * We might want to attach informations to a room, which is why we have a table Room. (For example, who is the customer, the type of walls, or anything relevant.)
 
+* We push one metric at a time (no batch pushing.)
+
+* Temperatures will be in kelvin if not said otherwise.
+
+* We will suppose that the sensors do not have an internal clock so they do not send their timestamp, and the network delay is small compared to the thermal constants.
 
 #### Model
 We will go for a [third normal](https://en.wikipedia.org/wiki/Third_normal_form) form as it is the best compromise between simplicity and safety (from anomalies)
@@ -47,29 +52,58 @@ We will go for a [third normal](https://en.wikipedia.org/wiki/Third_normal_form)
 title Database structure
 ---
 erDiagram
+  Building {
+    int building_id
+  }
+
   Room {
     int room_id
-    string description
   }
 
   SensorType {
-    int sensor_id
+    int sensor_type_id
     string unit
     string description
   }
 
   Capture {
+    int building_id
     int room_id
-    int sensor_id
+    int sensor_type_id
     float value
   }
 
-  Capture }o--|| SensorType: sensor_id
+  BuildingRooms {
+    int building_id
+    int room_id
+  }
+
+  BuildingRooms ||--|| Room: room_id
+  BuildingRooms ||--|| Building: building_id
+
+  Capture }o--|| SensorType: sensor_type_id
+  Capture }o--|| Building: building_id
   Capture }o--|| Room: room_id
 ```
 
+Note: We will not be using `BuildingRooms`. It is here just to show what we should have to connect the rooms to the buildings in the third normal form.
+To keep it simple we will also not have a sensor_id, but just a sensor type id.
+
 
 ### Code structure
+#### Frameworks
+We will be using [fastapi](https://fastapi.tiangolo.com/) that is a simple framework that allows to generate a swagger and takes usage of the typehint, which is great for documentation.
+However in a production environment, I would recommend using a compiled language (rust || golang) based on the requirements. For microservices I would also recommend GRPC (such as for the authorization system if we do not use something prebuilt such as aws verified permissions, for internal endpoints, or if we will have a high frequency or high volumetry, as the protobuf format can save costs in the infrastructure, while keeping it extremely readable.)
+
+### Tests
+We will be using testcontainers to setup the database so we do not hit the production database during tests. We will be passing the database connection string in the environment variables for this project. Though it could rather be handled by a secret manager (aws for instance) or through kubernetes secrets etc...
+
+
+
+
+
 
 
 ### CI&CD and other improvements
+In production we would be using PantsBuild (https://www.pantsbuild.org/) which would allow us to easilly build and deploy, and also launch tests based on the affected targets.
+We would then be running it on our github pipeline through the github actions on commit & push.

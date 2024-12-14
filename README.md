@@ -113,7 +113,15 @@ However in a production environment, I would recommend using a compiled language
 ### Tests
 We will be using testcontainers to setup the database so we do not hit the production database during tests. We will be passing the database connection string in the environment variables for this project. Though it could rather be handled by a secret manager (aws for instance) or through kubernetes secrets etc...
 
+What are we testing in those unit tests:
+* That we can update data
+* That when we try to get the most recent 15min average, it is not polluted by other rooms or buildings.
+* That we cannot push invalid data (here <0°K)
 
+
+What we could also test in the future:
+* Testing with multiple sensor types.
+* Testing for sql injection etc...
 
 
 

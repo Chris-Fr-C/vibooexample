@@ -1,0 +1,22 @@
+services:
+  database:
+    image: postgres:14-alpine
+    ports:
+      - 5432:5432
+    volumes:
+      - ~/apps/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=putThisInASecret
+      - POSTGRES_USER=viboo_user
+      - POSTGRES_DB=viboo
+
+  server:
+    environment:
+      - PORT=8080
+      - HOST=0.0.0.0
+      - DB_STRING="postgres://viboo_user:putThisInASecret@database:5432/viboo"
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database

@@ -21,10 +21,17 @@ Create a backend service that handles and analyzes temperature data from multipl
 
 ## Installation of the project
 ### Running the code
-If you are using vscode, just launch it with devcontainers.
-[documentation](https://code.visualstudio.com/docs/devcontainers/containers#_reopen-folder-in-container)
+Install docker and run:
+
+```bash
+docker-compose up
+```
+You can then open your browser at : [http://localhost:8080/docs](http://localhost:8080/docs)
+
 
 ### Running the tests
+If you are using vscode, just launch it with devcontainers.
+[documentation](https://code.visualstudio.com/docs/devcontainers/containers#_reopen-folder-in-container)
 
 
 
@@ -43,7 +50,7 @@ If you are using vscode, just launch it with devcontainers.
 
 * Temperatures will be in kelvin if not said otherwise.
 
-* We will suppose that the sensors do not have an internal clock so they do not send their timestamp, and the network delay is small compared to the thermal constants.
+* We will suppose that the sensors actually have an internal clock and send their timestamp. That's just to simplify this example and not having to mock a clock for tests (and do dependency injection).
 
 #### Model
 We will go for a [third normal](https://en.wikipedia.org/wiki/Third_normal_form) form as it is the best compromise between simplicity and safety (from anomalies)
@@ -70,16 +77,16 @@ erDiagram
     int building_id
     int room_id
     int sensor_type_id
-    float value
+    float value,
+    timestamp ts
   }
 
-  BuildingRooms {
+  BuildingRoom {
     int building_id
     int room_id
   }
 
-  BuildingRooms ||--|| Room: room_id
-  BuildingRooms ||--|| Building: building_id
+  BuildingRoom ||--|| Room: room_id  BuildingRoom ||--|| Building: building_id
 
   Capture }o--|| SensorType: sensor_type_id
   Capture }o--|| Building: building_id
@@ -107,3 +114,7 @@ We will be using testcontainers to setup the database so we do not hit the produ
 ### CI&CD and other improvements
 In production we would be using PantsBuild (https://www.pantsbuild.org/) which would allow us to easilly build and deploy, and also launch tests based on the affected targets.
 We would then be running it on our github pipeline through the github actions on commit & push.
+
+In production instead of just copying the data into the docker image, we would be using proper packaging (through pantsbuild, or setup build for instance).
+
+We could also add a layer of abstraction to the data fetching to separate concerns..

@@ -77,7 +77,7 @@ erDiagram
     int building_id
     int room_id
     int sensor_type_id
-    float value,
+    float value
     timestamp ts
   }
 
